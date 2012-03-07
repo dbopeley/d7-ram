@@ -1,0 +1,76 @@
+<?php
+/**
+ * @file
+ * Enables the use of Various Weather Plugins.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function ram_menu() {
+  $items['admin/config/content/ram'] = array(
+    'title' => 'RAMified',
+    'description' => 'Configure RAM MLS Servicce',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ram_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/ram.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function ram_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case 'admin/modules#description':
+      $output .= t('RAM MLS Decription.');
+      break;
+    case 'admin/config/content/ram':
+      $output .= t('<p>RAM settings could be found at !link</p>', array('!link' => l('admin/structure/block', 'admin/structure/block')));
+      break;
+  }
+  return $output;
+}
+
+
+/*
+ * Implements hook_cron().
+ */
+function ram_cron(){
+	$ram_type = variable_get('ram_content_type', null);
+	if($ram_type){
+		$query = db_select('node', 'n');
+		$query->condition('n.type', $ram_type, '=')
+	      	->fields('n', array('nid'));
+		$result = $query->execute();
+	  $queue = DrupalQueue::get('ram_update');
+	  foreach ($result as $hf_info) {
+	    $queue->createItem($hf_info);
+	  }
+	}
+}
+
+
+/*
+ * Implements hook_cron_queue_info().
+ */
+function ram_cron_queue_info(){
+  $queues['ram_update'] = array(
+    'worker callback' => 'ram_updater',
+    'time' => 120,
+  );
+  return $queues;
+}
+
+
+/*
+ * Callback.
+ */
+function ram_updater($data){
+  
+	$update = ram_process($data);
+}
+

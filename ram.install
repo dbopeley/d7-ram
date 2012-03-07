@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file whub.install 
+ * Weather Hub Install
+ * Version: 1.0
+ */
+
+/**
+ * Implements hook_install().
+ */
+
+function ram_uninstall() {
+  variable_del('ram_blocks');
+}

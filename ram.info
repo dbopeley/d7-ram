@@ -1,0 +1,13 @@
+name            = RAMified
+description     = Provides framework update a CCK type with data imported RAM MLS Service 
+version         = 7.x-1.0-beta
+package         = Content authoring
+configure 			= admin/config/content/ram
+core            = 7.x
+
+; Includes
+files[] = includes/ram.class.inc
+
+
+
+
